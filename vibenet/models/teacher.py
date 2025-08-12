@@ -1,18 +1,18 @@
 from vibenet.pann import models as pann_models
 from vibenet.utils import do_mixup
+from vibenet import labels
+
 import torch
 import numpy as np
 from torch import nn
 import torch.nn.functional as F
 from torchvggish import vggish
 
-names = ['acousticness','danceability','energy', 'instrumentalness','liveness','speechiness','valence']
-
 class PANNsMLP(nn.Module):
     def __init__(self):
         super(PANNsMLP, self).__init__()
         
-        checkpoint = torch.load('Cnn14_mAP=0.431.pth')
+        checkpoint = torch.load('checkpoints/Cnn14_mAP=0.431.pth')
         self.pann = pann_models.Cnn14(32000, 1024, 320, 64, 50, 14000, 527)
         self.pann.load_state_dict(checkpoint['model'], strict=False)
         self.pann.eval()
@@ -26,7 +26,7 @@ class PANNsMLP(nn.Module):
             nn.Dropout(0.2)
         )
         
-        self.heads = nn.ModuleDict({n: nn.Linear(256, 1) for n in names})
+        self.heads = nn.ModuleDict({n: nn.Linear(256, 1) for n in labels})
         
     def forward(self, input):
         with torch.no_grad():
