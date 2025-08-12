@@ -1,6 +1,8 @@
+import torch
 from torch import nn
+import torch.nn.functional as F
+from vibenet import labels
 
-    
 LIKELIHOODS = {'acousticness','liveness','instrumentalness'}
 CONTINUOUS  = {'speechiness', 'danceability','energy','valence'}    
 
