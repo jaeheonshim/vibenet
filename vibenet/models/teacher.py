@@ -15,23 +15,37 @@ class PANNsMLP(nn.Module):
         checkpoint = torch.load('checkpoints/Cnn14_mAP=0.431.pth')
         self.pann = pann_models.Cnn14(32000, 1024, 320, 64, 50, 14000, 527)
         self.pann.load_state_dict(checkpoint['model'], strict=False)
-        self.pann.eval()
-        for p in self.pann.parameters():
-            p.requires_grad = False
         
         self.trunk = nn.Sequential(
             nn.LayerNorm(2048),
-            nn.Linear(2048, 256),
+            nn.Linear(2048, 1024),
+            nn.GELU(),
+            nn.Dropout(0.2),
+            nn.Linear(1024, 256),
             nn.GELU(),
             nn.Dropout(0.2)
         )
         
         self.heads = nn.ModuleDict({n: nn.Linear(256, 1) for n in labels})
         
+        # Freeze all PANN parameters
+        for p in self.pann.parameters():
+            p.requires_grad = False
+            
+        # Unfreeze last layer of PANN
+        for m in self.pann.conv_block6.modules():
+            if isinstance(m, nn.BatchNorm2d):
+                for p in m.parameters():
+                    p.requires_grad = False
+                    m.eval()
+            else:
+                for p in m.parameters():
+                    p.requires_grad = True
+
+        
     def forward(self, input):
-        with torch.no_grad():
-            output = self.pann(input)
-            embeddings = output['embedding']
+        output = self.pann(input)
+        embeddings = output['embedding']
             
         h = self.trunk(embeddings)
         out = {k: self.heads[k](h).squeeze(-1) for k in self.heads}

@@ -30,4 +30,4 @@ remaining = shuffled.drop(val_df.index)
 train_df = remaining
 
 train_df.index.to_series().to_csv('data/distillation/train.csv', index=False, header=False)
-train_df.index.to_series().to_csv('data/distillation/test.csv', index=False, header=False)
+val_df.index.to_series().to_csv('data/distillation/test.csv', index=False, header=False)
