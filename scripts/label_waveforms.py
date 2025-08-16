@@ -12,10 +12,9 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from vibenet.utils import load
 from vibenet.models.teacher import PANNsMLP
 
-CSV_FILE = 'data/distillation/test.csv'
-OUTPUT_DIR = 'data/preprocessed/waveforms_distill_test'
+CSV_FILE = 'data/distillation/train.csv'
+OUTPUT_DIR = 'data/preprocessed/waveforms_distill_train'
 MAX_WIDTH = 32000 * 31
-OVERLAP = MAX_WIDTH // 2
 CHUNK_SIZE = 1000
 BATCH_SIZE = 250
 NUM_WORKERS = 8
@@ -27,7 +26,7 @@ device = 'cuda'
 
 model = PANNsMLP()
 model = model.to(device)
-data = torch.load('checkpoints/pretrained_PANN.pt')
+data = torch.load('checkpoints/pretrained_PANN_v3.pt')
 model.load_state_dict(data['state_dict'])
 
 def eval(batch):
@@ -37,9 +36,9 @@ def eval(batch):
         x = torch.tensor(batch).to(device).float()  # [B, T]
         pred = model(x)
 
-    pred['acousticness'] = F.sigmoid(pred['acousticness'])
-    pred['instrumentalness'] = F.sigmoid(pred['instrumentalness'])
-    pred['liveness'] = F.sigmoid(pred['liveness'])
+    pred['acousticness'] = torch.sigmoid(pred['acousticness'])
+    pred['instrumentalness'] = torch.sigmoid(pred['instrumentalness'])
+    pred['liveness'] = torch.sigmoid(pred['liveness'])
     pred['speechiness'] = torch.clamp(pred['speechiness'], 0, 1)
     pred['danceability'] = torch.clamp(pred['danceability'], 0, 1)
     pred['energy'] = torch.clamp(pred['energy'], 0, 1)
@@ -64,7 +63,7 @@ def get_32khz_waveform(track_id):
         else:
             y = y[:MAX_WIDTH]
 
-        return y
+        return track_id, y
     except Exception as e:
         print(f'Error processing track {track_id}: {e}', file=sys.stderr)
         return None
@@ -72,12 +71,14 @@ def get_32khz_waveform(track_id):
 batch_data = []
 batch_labels = []
 batch_index = 0
+labeled = {}
 
 with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
     with tqdm(range(0, len(track_ids), BATCH_SIZE)) as pbar:
         for i in pbar:
             waveforms_32khz = []
             waveforms_16khz = []
+            track_ids_batch = []
 
             pbar.set_description("Loading waveforms")
             results = list(executor.map(get_32khz_waveform, track_ids[i:i + BATCH_SIZE]))
@@ -86,8 +87,11 @@ with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
                     print('Warning: Track Skipped', file=sys.stderr)
                     continue
 
-                waveforms_32khz.append(z)
-                waveforms_16khz.append(librosa.resample(z, orig_sr=32000, target_sr=16000))
+                track_id, wf = z
+
+                track_ids_batch.append(track_id)
+                waveforms_32khz.append(wf)
+                waveforms_16khz.append(librosa.resample(wf, orig_sr=32000, target_sr=16000))
 
                 pbar.set_postfix({'loaded_songs': len(waveforms_32khz)})
 
@@ -96,6 +100,12 @@ with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
 
             pbar.set_description("Running inference")
             pred = eval(x)
+
+            for i, id in enumerate(track_ids_batch):
+                labeled[id] = {}
+
+                for k in pred.keys():
+                    labeled[id][k] = pred[k][i].item()
 
             labels = np.concatenate(
                 [
@@ -123,3 +133,6 @@ with ProcessPoolExecutor(max_workers=NUM_WORKERS) as executor:
     if batch_data:
         np.save(f'{OUTPUT_DIR}/data/{batch_index}.npy', np.array(batch_data, dtype=np.float32))
         np.save(f'{OUTPUT_DIR}/labels/{batch_index}.npy', np.array(batch_labels, dtype=np.float32))
+
+df = pd.DataFrame.from_dict(labeled, orient='index')
+df.to_csv('labeled_predictions_train.csv', index_label='track_id')
