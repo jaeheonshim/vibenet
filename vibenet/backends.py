@@ -14,13 +14,11 @@ class EfficientNetModel(Model):
         
     def predict(self, inputs: str | Sequence[str] | PathLike[Any] | Sequence[PathLike[Any]] | BinaryIO | Sequence[BinaryIO] | ndarray | Sequence[ndarray], sr: int | None = None) -> list[InferenceResult]:
         batch = create_batch(inputs, sr)
-        print("Created batch")
         
         results = []
         
         for wf in batch:
             mel = extract_mel(wf, 16000)
-            print("Extracted mel")
             outputs = self.ort_sess.run(None, {'x': mel[np.newaxis, :]})
             results.append(InferenceResult.from_logits([outputs[0][0][i].item() for i, _ in enumerate(labels)])) # type: ignore[index]
             

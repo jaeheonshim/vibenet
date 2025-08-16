@@ -97,7 +97,6 @@ def _cached_window(win_length: int, win_type: str = "hann") -> np.ndarray:
 
 @lru_cache(maxsize=32)
 def _cached_mel(sr: int, n_fft: int, n_mels: int, fmin: float, fmax: float) -> np.ndarray:
-    import librosa
     return librosa.filters.mel(sr=sr, n_fft=n_fft, n_mels=n_mels, fmin=fmin, fmax=fmax).astype(np.float32)
 
 
@@ -106,8 +105,6 @@ def _power_to_db_fast(S: np.ndarray, top_db: float = 80.0, amin: float = 1e-10, 
     if top_db is not None:
         S_db = np.maximum(S_db, S_db.max() - top_db)
     return S_db.astype(np.float32)
-
-
 
 
 def extract_mel(
