@@ -1,7 +1,7 @@
 # VibeNet: Music Emotion Prediction
 
 <p align="center">
-  <img src="images/vibenet.png" alt="VibeNet Flow" width="600"/>
+  <img src="images/vibenet.png" alt="VibeNet Flow" width="800"/>
 </p>
 
 A while ago I canceled my Spotify subscription and began building my own offline music library. But something I always missed was Spotify's ability to generate smart playlists like *Morning Mix* or *Driving Vibes*. Spotify doesn't publish how its algorithm creates these playlists, so I set out to build my own system.
