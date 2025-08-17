@@ -1,5 +1,9 @@
 # VibeNet: Music Emotion Prediction
 
+<p align="center">
+  <img src="images/vibenet.png" alt="VibeNet Flow" width="600"/>
+</p>
+
 A while ago I canceled my Spotify subscription and began building my own offline music library. But something I always missed was Spotify's ability to generate smart playlists like *Morning Mix* or *Driving Vibes*. Spotify doesn't publish how its algorithm creates these playlists, so I set out to build my own system.
 
 As humans, music can make us feel happy, sad, energetic, angry, calm, or a variety of other emotions. Can music make computers *feel* these emotions too? Well, maybe not, but we can teach them to recognize and quantify the qualities of music that drive those feelings. Then, we could use our computers to classify and organize our musical tracks by the emotions they make us feel and recommend songs that match a given mood.
