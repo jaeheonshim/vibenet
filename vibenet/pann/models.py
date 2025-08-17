@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchlibrosa.stft import Spectrogram, LogmelFilterBank
 from torchlibrosa.augmentation import SpecAugmentation
+from torchlibrosa.stft import LogmelFilterBank, Spectrogram
 
 from .pytorch_utils import do_mixup, interpolate, pad_framewise_output
- 
+
 
 def init_layer(layer):
     """Initialize a Linear or Convolutional layer. """

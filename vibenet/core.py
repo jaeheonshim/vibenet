@@ -1,15 +1,19 @@
-from typing import Any, Protocol, Sequence, Union, BinaryIO
 from dataclasses import dataclass
-from os import PathLike
-import numpy as np
-from pydub import AudioSegment
-import soxr
-import librosa
-from vibenet import labels,  LIKELIHOODS
 from functools import lru_cache
-from scipy.signal import get_window
-from scipy.fft import rfft
+from os import PathLike
+from typing import Any, BinaryIO, Protocol, Sequence, Union
+
+import audioread
+import librosa
+import numpy as np
+import soundfile as sf
+import soxr
 from numpy.lib.stride_tricks import sliding_window_view
+from pydub import AudioSegment
+from scipy.fft import rfft
+from scipy.signal import get_window
+
+from vibenet import LIKELIHOODS, labels
 
 SAMPLE_RATE = 16000 # This is the sample rate used by the backend model
 
@@ -21,6 +25,7 @@ AudioInput = Union[
     np.ndarray,
     Sequence[np.ndarray]
 ]
+
 
 @dataclass
 class InferenceResult:
@@ -62,11 +67,18 @@ class Model(Protocol):
         """
         ...
         
-def _load_with_pydub(inp: str | PathLike[str]) -> np.ndarray:
-    audio = AudioSegment.from_file(inp)
-    audio = audio.set_channels(1).set_frame_rate(SAMPLE_RATE).set_sample_width(2)
-    arr = np.array(audio.get_array_of_samples(), dtype=np.float32) / 32768.0
-    return arr
+
+def _load_audio(path, target_sr=16000):
+    try:
+        y, sr = sf.read(path, always_2d=False)
+    except Exception:
+        y, sr = librosa.load(path, sr=None, mono=False)
+    y = np.asarray(y, dtype=np.float32)
+    if y.ndim == 2:
+        y = y.mean(axis=1)
+    if sr != target_sr:
+        y = soxr.resample(y, sr, target_sr)
+    return y
     
 
 def create_batch(inputs, sr: int | None):
@@ -84,7 +96,7 @@ def create_batch(inputs, sr: int | None):
                 
             out.append(item)
         else:
-            waveform = _load_with_pydub(item)
+            waveform = _load_audio(item)
             out.append(waveform)
     
     return out

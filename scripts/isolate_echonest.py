@@ -1,8 +1,10 @@
 import os
-import sys
 import shutil
-from tqdm import tqdm
+import sys
 from concurrent.futures import ProcessPoolExecutor
+
+from tqdm import tqdm
+
 from vibenet.utils import load
 
 SRC_ROOT = 'data/fma_full'

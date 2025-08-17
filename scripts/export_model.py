@@ -1,8 +1,9 @@
 # Script for exporting model to ONNX
 
 import torch
-from vibenet.models.student import EfficientNetRegressor
+
 from vibenet import labels
+from vibenet.models.student import EfficientNetRegressor
 
 model = EfficientNetRegressor()
 checkpoint = torch.load("checkpoints/efficientnet_best.pt")

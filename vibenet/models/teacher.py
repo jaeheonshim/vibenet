@@ -1,12 +1,13 @@
+import numpy as np
+import torch
+import torch.nn.functional as F
+from torch import nn
+from torchvggish import vggish
+
+from vibenet import labels
 from vibenet.pann import models as pann_models
 from vibenet.utils import do_mixup
-from vibenet import labels
 
-import torch
-import numpy as np
-from torch import nn
-import torch.nn.functional as F
-from torchvggish import vggish
 
 class PANNsMLP(nn.Module):
     def __init__(self):

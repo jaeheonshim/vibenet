@@ -1,7 +1,8 @@
 import torch
-from torch import nn
 import torch.nn.functional as F
-from vibenet import labels, LIKELIHOODS, CONTINUOUS
+from torch import nn
+
+from vibenet import CONTINUOUS, LIKELIHOODS, labels
 
 huber = nn.SmoothL1Loss(beta=0.2)
 mse = nn.MSELoss()

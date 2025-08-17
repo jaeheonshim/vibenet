@@ -1,12 +1,14 @@
 import os
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+import librosa
 import numpy as np
 import pandas as pd
-import librosa
-from tqdm import tqdm
 from torchvggish import vggish_input
+from tqdm import tqdm
+
 from vibenet.utils import load
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
 OUTPUT_DIR = 'data/preprocessed/waveforms_val'
 MAX_WIDTH = 32000 * 31

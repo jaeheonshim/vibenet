@@ -1,11 +1,14 @@
+import importlib.resources as resources
 from os import PathLike
 from typing import Any, BinaryIO, Sequence
+
 import numpy as np
+import onnxruntime as ort
 from numpy import ndarray
+
 from vibenet import labels
 from vibenet.core import InferenceResult, Model, create_batch, extract_mel
-import onnxruntime as ort
-import importlib.resources as resources
+
 
 class EfficientNetModel(Model):
     def __init__(self):
@@ -21,5 +24,4 @@ class EfficientNetModel(Model):
             mel = extract_mel(wf, 16000)
             outputs = self.ort_sess.run(None, {'x': mel[np.newaxis, :]})
             results.append(InferenceResult.from_logits([outputs[0][0][i].item() for i, _ in enumerate(labels)])) # type: ignore[index]
-            
         return results

@@ -1,12 +1,12 @@
-import torch
 import numpy as np
-from torch import nn
+import torch
 import torch.nn.functional as F
+from torch import nn
 from torchvggish import vggish
-
 from torchvision.models import efficientnet_b0
 
 from vibenet import labels
+
 
 class EfficientNetRegressor(nn.Module):
     def __init__(self):

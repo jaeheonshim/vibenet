@@ -1,12 +1,13 @@
-import os
 import bisect
+import os
+import random
+from bisect import bisect_right
+
+import librosa
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-import librosa
-import random
-from bisect import bisect_right
 
 CHUNK_SIZE = 1000
 

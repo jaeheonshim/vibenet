@@ -1,11 +1,13 @@
 import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+import librosa
 import numpy as np
 import pandas as pd
-import librosa
-from tqdm import tqdm
 from torchvggish import vggish_input
+from tqdm import tqdm
+
 from vibenet.utils import load
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
 OUTPUT_DIR = 'data/preprocessed/vggish'
 MAX_WIDTH = 500_000 # 31.25 sec

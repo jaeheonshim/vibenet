@@ -1,16 +1,17 @@
 import os
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+import librosa
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
-import librosa
-from tqdm import tqdm
 from torchvggish import vggish_input
-from concurrent.futures import ProcessPoolExecutor, as_completed
+from tqdm import tqdm
 
-from vibenet.utils import load
 from vibenet.models.teacher import PANNsMLP
+from vibenet.utils import load
 
 CSV_FILE = 'data/distillation/train.csv'
 OUTPUT_DIR = 'data/preprocessed/waveforms_distill_train'
