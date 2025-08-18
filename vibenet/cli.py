@@ -48,6 +48,7 @@ def predict(
     glob: Annotated[Optional[str], typer.Option("--glob", help='Glob pattern, e.g. "*.mp3"')] = None,
     format: OutputFormat = OutputFormat.table,
     quiet: Annotated[bool, typer.Option("--quiet", "-q")] = False,
+    strict: Annotated[bool, typer.Option("--strict", help="Abort on first error.")] = False
 ):
     net = load_model()
     
@@ -64,6 +65,8 @@ def predict(
         except Exception as e:
             if not quiet:
                 typer.echo(f"Failed on {p}: {e}", err=True)
+            if strict:
+                raise typer.Exit(1)
     
     if format == OutputFormat.table:
         table = Table('path', *vibenet.labels)
