@@ -1,0 +1,21 @@
+[project]
+name = "vibenet"
+version = "0.1.0"
+description = "A Python tool for music emotion and perceptual feature prediction"
+authors = [
+    {name = "Jaeheon Shim",email = "git@jaeheonshim.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "typer (>=0.16.0,<0.17.0)",
+    "audioread (>=3.0.1,<4.0.0)",
+    "librosa (>=0.11.0,<0.12.0)",
+    "pydub (>=0.25.1,<0.26.0)",
+    "onnxruntime (>=1.22.1,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
