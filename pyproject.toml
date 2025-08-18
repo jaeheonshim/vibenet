@@ -1,12 +1,16 @@
 [project]
 name = "vibenet"
-version = "0.1.0"
+version = "0.0."
 description = "A Python tool for music emotion and perceptual feature prediction"
 authors = [
     {name = "Jaeheon Shim",email = "git@jaeheonshim.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
 dependencies = [
     "typer (>=0.16.0,<0.17.0)",
     "audioread (>=3.0.1,<4.0.0)",
@@ -14,7 +18,14 @@ dependencies = [
     "pydub (>=0.25.1,<0.26.0)",
     "onnxruntime (>=1.22.1,<2.0.0)"
 ]
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 
+[project.urls]
+Homepage = "https://github.com/jaeheonshim/vibenet"
+
+[project.scripts]
+vibenet = "vibenet.cli:app"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
