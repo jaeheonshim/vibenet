@@ -1,4 +1,7 @@
-from dataclasses import dataclass
+import contextlib
+import os
+import sys
+from dataclasses import asdict, dataclass
 from functools import lru_cache
 from os import PathLike
 from typing import Any, BinaryIO, Protocol, Sequence, Union
@@ -26,6 +29,16 @@ AudioInput = Union[
     Sequence[np.ndarray]
 ]
 
+@contextlib.contextmanager
+def _suppress_output():
+    with open(os.devnull, "w") as devnull:
+        old_stdout, old_stderr = sys.stdout, sys.stderr
+        try:
+            sys.stdout, sys.stderr = devnull, devnull
+            yield
+        finally:
+            sys.stdout, sys.stderr = old_stdout, old_stderr
+
 
 @dataclass
 class InferenceResult:
@@ -49,6 +62,9 @@ class InferenceResult:
                 
         return cls(**values)
 
+    def to_dict(self) -> dict[str, float]:
+        return asdict(self)
+
 
 class Model(Protocol):
     def predict(
@@ -68,11 +84,13 @@ class Model(Protocol):
         ...
         
 
-def _load_audio(path, target_sr=16000):
+def load_audio(path, target_sr=16000):
     try:
-        y, sr = sf.read(path, always_2d=False)
+        with _suppress_output():
+            y, sr = sf.read(path, always_2d=False)
     except Exception:
-        y, sr = librosa.load(path, sr=None, mono=False)
+        with _suppress_output():
+            y, sr = librosa.load(path, sr=target_sr, mono=False)
     y = np.asarray(y, dtype=np.float32)
     if y.ndim == 2:
         y = y.mean(axis=1)
@@ -96,7 +114,7 @@ def create_batch(inputs, sr: int | None):
                 
             out.append(item)
         else:
-            waveform = _load_audio(item)
+            waveform = load_audio(item)
             out.append(waveform)
     
     return out
