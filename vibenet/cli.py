@@ -26,7 +26,7 @@ SR = 16000
 app = typer.Typer(no_args_is_help=True)
 console = Console()
 
-def _iter_audio_paths(inputs: list[str], recursive: bool, pattern: str|None, quiet: bool):
+def _iter_audio_paths(inputs: list[str], recursive: bool, pattern: str|None, quiet: bool, strict: bool):
     paths: list[Path] = []
     for inp in inputs:
         p = Path(inp)
@@ -38,6 +38,9 @@ def _iter_audio_paths(inputs: list[str], recursive: bool, pattern: str|None, qui
         else:
             if not quiet:
                 typer.echo(f"Not found: {inp}", err=True)
+                
+            if strict:
+                raise typer.Exit(1)
             
     return list(sorted(set(paths)))
 
@@ -52,7 +55,7 @@ def predict(
 ):
     net = load_model()
     
-    paths = _iter_audio_paths(inputs, recursive, glob, quiet)
+    paths = _iter_audio_paths(inputs, recursive, glob, quiet, strict)
     
     rows = []
     
