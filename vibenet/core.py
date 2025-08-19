@@ -2,7 +2,7 @@ import contextlib
 import os
 import sys
 from dataclasses import asdict, dataclass
-from functools import lru_cache, partial
+from functools import lru_cache
 from os import PathLike
 from typing import Any, BinaryIO, Protocol, Sequence, Union
 
@@ -17,8 +17,6 @@ from scipy.fft import rfft
 from scipy.signal import get_window
 
 from vibenet import LIKELIHOODS, labels
-
-from concurrent.futures import ThreadPoolExecutor
 
 SAMPLE_RATE = 16000 # This is the sample rate used by the backend model
 
@@ -97,34 +95,27 @@ def load_audio(path, target_sr=16000):
     if sr != target_sr:
         y = soxr.resample(y, sr, target_sr)
     return y
-   
- 
-def _process_single_input(item, sr: int | None):
-    if isinstance(item, np.ndarray):
-        if sr is None:
-            raise ValueError("When passing raw waveforms, their sample rate (sr) must be provided.")
-        if sr != SAMPLE_RATE:
-            item = soxr.resample(item, sr, SAMPLE_RATE)
-            
-        return item
-    else:
-        waveform = load_audio(item)
-        return waveform
     
 
-def create_batch(inputs, sr: int | None, max_workers: int):
+def create_batch(inputs, sr: int | None):
     if not isinstance(inputs, (list, tuple)):
         inputs = [inputs]
         
-    if not max_workers or max_workers < 0:
-        max_workers = max(1, (os.cpu_count() or 4))
-        
-    fn = partial(_process_single_input, sr=sr)
-
-    with ThreadPoolExecutor(max_workers=max_workers) as ex:
-        batch = list(ex.map(fn, inputs))
-        
-    return batch
+    out = []
+    
+    for item in inputs:
+        if isinstance(item, np.ndarray):
+            if sr is None:
+                raise ValueError("When passing raw waveforms, their sample rate (sr) must be provided.")
+            if sr != SAMPLE_RATE:
+                item = soxr.resample(item, sr, SAMPLE_RATE)
+                
+            out.append(item)
+        else:
+            waveform = load_audio(item)
+            out.append(waveform)
+    
+    return out
 
 
 @lru_cache(maxsize=32)
