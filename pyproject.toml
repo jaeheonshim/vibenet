@@ -1,6 +1,6 @@
 [project]
 name = "vibenet"
-version = "0.0."
+version = "0.0.1"
 description = "A Python tool for music emotion and perceptual feature prediction"
 authors = [
     {name = "Jaeheon Shim",email = "git@jaeheonshim.com"}
@@ -30,3 +30,9 @@ vibenet = "vibenet.cli:app"
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [
+    {include = "vibenet", from="."},
+    {include = "beetsplug", from="."}
+]

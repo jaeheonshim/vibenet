@@ -40,7 +40,9 @@ def _iter_audio_paths(inputs: list[str], recursive: bool, pattern: str|None, qui
             paths.append(p)
         elif p.is_dir():
             glob = pattern or "*"
-            paths.extend(p.rglob(glob) if recursive else p.glob(glob))
+            for sp in p.rglob(glob) if recursive else p.glob(glob):
+                if sp.is_file():
+                    paths.append(sp)
         else:
             if not quiet:
                 typer.echo(f"Not found: {inp}", err=True)
@@ -62,10 +64,10 @@ def _process_one(path, net: Model):
 def predict(
     inputs: Annotated[list[str], typer.Argument(help="Audio file(s) or directory(ies).")],
     recursive: Annotated[bool, typer.Option("--recursive", "-r", help="Recurse into directories.")] = False,
+    format: Annotated[OutputFormat, typer.Option("--format", "-f", help="Output format")] = OutputFormat.table,
     glob: Annotated[Optional[str], typer.Option("--glob", help='Glob pattern, e.g. "*.mp3"')] = None,
-    format: OutputFormat = OutputFormat.table,
-    quiet: Annotated[bool, typer.Option("--quiet", "-q")] = False,
     strict: Annotated[bool, typer.Option("--strict", help="Abort on first error.")] = False,
+    quiet: Annotated[bool, typer.Option("--quiet", "-q")] = False,
     workers: Annotated[int, typer.Option("--workers", "-j", help="Number of threads for parallel inference. 0=auto")] = 0
 ):
     workers = workers or max(1, (os.cpu_count() or 4))
