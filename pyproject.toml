@@ -24,7 +24,7 @@ license-files = ["LICENSE"]
 [project.urls]
 Homepage = "https://github.com/jaeheonshim/vibenet"
 
-[project.scripts]
+[tool.poetry.scripts]
 vibenet = "vibenet.cli:app"
 
 [build-system]

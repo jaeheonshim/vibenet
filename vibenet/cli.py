@@ -1,25 +1,21 @@
 import csv
 import json
+import os
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from enum import Enum
 from pathlib import Path
 from typing import Optional
 
-import os
-
 import typer
 from rich.console import Console
-from rich.progress import track
+from rich.progress import Progress, track
 from rich.table import Table
 from typing_extensions import Annotated
 
 import vibenet
 from vibenet import load_model
 from vibenet.core import Model, load_audio
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-from rich.progress import Progress
 
 
 class OutputFormat(str, Enum):

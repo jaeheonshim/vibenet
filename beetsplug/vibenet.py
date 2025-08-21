@@ -1,25 +1,47 @@
-from beets.plugins import BeetsPlugin
-from beets.library import Library, Item
-from vibenet import labels as FIELDS, load_model
-from vibenet.core import Model, load_audio
-from beets.ui import Subcommand, print_
-from beets import ui
-import mediafile
 import itertools
-from functools import partial
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from functools import partial
+from optparse import OptionParser
+
+import mediafile
+from beets import ui
+from beets.library import Item, Library
+from beets.plugins import BeetsPlugin
+from beets.ui import Subcommand, print_
+
+from vibenet import labels as FIELDS
+from vibenet import load_model
+from vibenet.core import Model, load_audio
+
 
 class VibeNetCommand(Subcommand):
-    def __init__(self):
+    cfg_dry_run = False
+    
+    def __init__(self):        
+        self.parser = OptionParser()
+        
+        self.parser.add_option(
+            '-d', '--dry-run',
+            action='store_true', dest='dryrun'
+        )
+        
         super(VibeNetCommand, self).__init__(
+            parser=self.parser,
             name='vibenet'
         )
         
     def func(self, lib: Library, opts, args):
+        self.cfg_dry_run = opts.dryrun
+        
         self.lib = lib
         self.query = ui.decargs(args)
         self.net = load_model()
+        
+        if self.cfg_dry_run:
+            print("*********************************************************")
+            print("*** DRY RUN: NO CHANGES WILL BE APPLIED TO YOUR FILES ***")
+            print("*********************************************************")
         
         self.predict()
         
@@ -28,10 +50,11 @@ class VibeNetCommand(Subcommand):
         scores = self.net.predict([wf], 16000)[0]
         scores = scores.to_dict()
         
-        # for f in FIELDS:
-        #     item[f] = scores[f]
+        if not self.cfg_dry_run:
+            for f in FIELDS:
+                item[f] = scores[f]
             
-        # item.write()
+            item.write()
         
         return item
         
