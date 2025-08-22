@@ -17,13 +17,34 @@ from vibenet.core import Model, load_audio
 
 class VibeNetCommand(Subcommand):
     cfg_dry_run = False
+    cfg_threads = 0
+    cfg_force = False
     
-    def __init__(self):        
+    def __init__(self, config):
+        self.config = config
+        
+        cfg = self.config.flatten()
+        self.cfg_auto = cfg.get("auto")
+        self.cfg_threads = cfg.get("threads")
+        self.cfg_force = cfg.get("force")
+                
         self.parser = OptionParser()
         
         self.parser.add_option(
             '-d', '--dry-run',
             action='store_true', dest='dryrun'
+        )
+        
+        self.parser.add_option(
+            '-t', '--threads',
+            action='store', dest='threads', type='int',
+            default=self.cfg_threads
+        )
+        
+        self.parser.add_option(
+            '-f', '--force',
+            action='store_true', dest='force',
+            default=self.cfg_force
         )
         
         super(VibeNetCommand, self).__init__(
@@ -33,15 +54,21 @@ class VibeNetCommand(Subcommand):
         
     def func(self, lib: Library, opts, args):
         self.cfg_dry_run = opts.dryrun
+        self.cfg_threads = opts.threads
+        self.cfg_force = opts.force
+                
+        if not self.cfg_threads or self.cfg_threads == 0:
+            self.cfg_threads = multiprocessing.cpu_count()
+            print("Adjusting max threads to CPU count: {0}".format(self.cfg_threads))
         
         self.lib = lib
         self.query = ui.decargs(args)
         self.net = load_model()
         
         if self.cfg_dry_run:
-            print("*********************************************************")
-            print("*** DRY RUN: NO CHANGES WILL BE APPLIED TO YOUR FILES ***")
-            print("*********************************************************")
+            print("*******************************************")
+            print("*** DRY RUN: NO CHANGES WILL BE APPLIED ***")
+            print("*******************************************")
         
         self.predict()
         
@@ -66,7 +93,7 @@ class VibeNetCommand(Subcommand):
         total = len(items)
         finished = 0
         
-        with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as ex:
+        with ThreadPoolExecutor(max_workers=self.cfg_threads) as ex:
             for it in ex.map(self._process_one, items):
                 finished += 1
                 self._show_progress(finished, total, it)
@@ -83,4 +110,4 @@ class VibeNetPlugin(BeetsPlugin):
             self.add_media_field(name, field)
     
     def commands(self):
-        return [VibeNetCommand()]
+        return [VibeNetCommand(self.config)]
