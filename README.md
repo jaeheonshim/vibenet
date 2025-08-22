@@ -17,7 +17,7 @@ There are a few different ways to use VibeNet depending on your intended use cas
 - [Beets plugin](#beets-plugin) - By far the best option for using VibeNet to tag and classify your personal music collection
 - MusicBrainz Picard - Coming soon!
 - [Python package]() - Best if you want to build on top VibeNet or you need the maximum flexibility
-- [Command line (CLI)]() - Best for one-off labeling tasks. I wouldn't use the CLI to label and manage your entire library
+- [Command line (CLI)](#command-line) - Best for one-off labeling tasks. I wouldn't use the CLI to label and manage your entire library
 
 ## What attributes are predicted?
 
@@ -102,3 +102,45 @@ beet ls instrumentalness:0.9.. energy:..0.3 valence:0.8..
 ```
 
 To get the most out of beets, you should understand [how its query strings work](https://beets.readthedocs.io/en/stable/reference/query.html).
+
+### Command Line
+The VibeNet package includes a command line script as well.
+
+#### Installation
+Install the VibeNet package.
+
+```
+pip install vibenet
+```
+
+#### Usage
+Use `vibenet --help` to get a full explanation of usage format. Below are a few examples:
+
+**Output predictions for a single file**
+```
+$ vibenet '02 Dancing Queen.flac' 
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+┏━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━┓
+┃ path             ┃ acousticness ┃ danceability ┃ energy ┃ instrumentalness ┃ liveness ┃ speechiness ┃ valence ┃
+┡━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━┩
+│ 02 Dancing       │ 0.344        │ 0.620        │ 0.704  │ 0.714            │ 0.160    │ 0.045       │ 0.882   │
+│ Queen.flac       │              │              │        │                  │          │             │         │
+└──────────────────┴──────────────┴──────────────┴────────┴──────────────────┴──────────┴─────────────┴─────────┘
+```
+
+**Process a whole directory, and output the results in CSV format**
+```
+$ vibenet -f csv *
+Predicting ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+path,acousticness,danceability,energy,instrumentalness,liveness,speechiness,valence
+04 Dum Dum Diddle.flac,0.4607604851395908,0.6557254791259766,0.4954206943511963,0.5706152901750524,0.14939714126869905,0.04425659030675888,0.9304299354553223
+10 Arrival.flac,0.7492030794013365,0.3940376341342926,0.3149440884590149,0.909781333152513,0.16115917859422296,0.06442416459321976,0.07757408916950226
+01 When I Kissed the Teacher.flac,0.4503387044857127,0.574401319026947,0.6448520421981812,0.3958653381113854,0.1827700968370561,0.039843928068876266,0.8254069089889526
+07 That’s Me.flac,0.18465114617230102,0.6521217226982117,0.6456546187400818,0.6775099224832243,0.17600368615142495,0.057180166244506836,0.8024619817733765
+"06 Money, Money, Money.flac",0.6901674220217361,0.6556591987609863,0.4812447428703308,0.7523727231956888,0.14662341130452025,0.06765997409820557,0.9115567207336426
+09 Tiger.flac,0.3625403656002167,0.5708804130554199,0.6882965564727783,0.6308650228026009,0.179473740246014,0.044405993074178696,0.8011720180511475
+08 Why Did It Have to Be Me.flac,0.8084378055338943,0.5141943693161011,0.5882516503334045,0.7828053421798725,0.16900709319657073,0.03991405665874481,0.8868117332458496
+"05 Knowing Me, Knowing You.flac",0.20703727138284786,0.6520654559135437,0.5237798690795898,0.44584756563169287,0.16008894555350467,0.05200740322470665,0.8240906000137329
+"03 My Love, My Life.flac",0.803182653487076,0.4552169442176819,0.23595675826072693,0.6472388734467308,0.1453882503527327,0.03054790198802948,0.1411082148551941
+02 Dancing Queen.flac,0.34442428835652833,0.6195424795150757,0.7037929892539978,0.7138845214492101,0.1604615680649649,0.04466772451996803,0.8822445869445801
+```
