@@ -44,6 +44,11 @@ Below is a table describing each attribute in more detail:
 ## Usage
 ### Beets Plugin
 
+<details>
+<summary>
+Click to expand
+</suummary>
+
 This option is best for tagging a large music library, for example if you want to create playlists organized by mood.
 
 [beets](https://beets.io/) is a powerful program for managing your music library. If you have a large collection of mp3/flac files, you're probably already familiar with this tool. If you aren't, I would recommend you visit https://beets.io and take a moment to learn your way around the tool.
@@ -102,6 +107,7 @@ beet ls instrumentalness:0.9.. energy:..0.3 valence:0.8..
 ```
 
 To get the most out of beets, you should understand [how its query strings work](https://beets.readthedocs.io/en/stable/reference/query.html).
+</details>
 
 ### Command Line
 The VibeNet package includes a command line script as well.
