@@ -10,6 +10,15 @@ As humans, music can make us feel happy, sad, energetic, angry, calm, or a varie
 
 VibeNet is a lightweight Python package and CLI that predicts musical emotions and attributes (valence, energy, danceability, acousticness, etc.) directly from raw audio. It utilizes a distilled EfficientNet student model trained with teacher-student distillation on the [Free Music Archive (FMA) dataset](https://github.com/mdeff/fma).
 
+## Quick Links
+
+There are a few different ways to use VibeNet depending on your intended use case.
+
+- [Beets plugin](#beets-plugin) - By far the best option for using VibeNet to tag and classify your personal music collection
+- MusicBrainz Picard - Coming soon!
+- [Python package]() - Best if you want to build on top VibeNet or you need the maximum flexibility
+- [Command line (CLI)]() - Best for one-off labeling tasks. I wouldn't use the CLI to label and manage your entire library
+
 ## What attributes are predicted?
 
 VibeNet predicts 7 continuous attributes for each audio track: **acousticness**, **danceability**, **energy**, **instrumentalness**, **liveness**, **speechiness**, and **valence**.
@@ -31,3 +40,65 @@ Below is a table describing each attribute in more detail:
 | **Energy** | Descriptor | Also known as arousal. Measures the perceived intensity and activity level of a track. Higher values indicate tracks that feel fast, loud, and powerful, while lower values indicate tracks that feel calm, soft, or subdued.
 | **Valence** | Descriptor | Measures the musical positivity conveyed by a track. Higher values indicate tracks that sound more positive (e.g. happy, cheerful, euphoric), while lower values  indicate tracks that sound more negative (e.g. sad, depressed, angry).
 | **Speechiness** | Descriptor | Measures the presence of spoken words in a track. Higher values indicate that the recording is more speech-like (e.g. podcasts), while lower values suggest that the audio is more musical, with singing or purely instrumental content. Mid-range values often correspond to tracks that mix both elements, such as spoken-word poetry layered over music.
+
+## Usage
+### Beets Plugin
+
+This option is best for tagging a large music library, for example if you want to create playlists organized by mood.
+
+[beets](https://beets.io/) is a powerful program for managing your music library. If you have a large collection of mp3/flac files, you're probably already familiar with this tool. If you aren't, I would recommend you visit https://beets.io and take a moment to learn your way around the tool.
+
+#### Installation
+
+Install the VibeNet package into the same virtual environment as your beets installation
+
+```
+pip install vibenet
+```
+
+and activate the plugin by adding it to your beets configuration (Run `beet config -e` to edit your config file)
+
+```
+plugins:
+    - vibenet
+```
+
+#### Configuration
+To configure the plugin, make a `vibenet:` section in your beets configuration file. For example:
+```
+vibenet:
+    auto: yes
+    force: no
+    threads: 0
+```
+
+- **auto**: Enable VibeNet during `beet import`. Default: `yes`
+- **force**: Perform prediction on tracks that already have all fields. Default: `no`
+- **threads**: The number of CPU threads to use for inference. Default: all available threads
+
+#### Usage
+By default, the plugin tags files automatically during import. You can optionally run the vibenet command manually. For a list of all CLI options:
+
+```
+beet vibenet --help
+```
+
+Once your files are tagged, you can do some pretty cool things with beets. For example, if I wanted to find all songs by ABBA with a high valence score:
+
+```
+beet ls artist:=ABBA valence:0.7..
+```
+
+Or to build a party playlist of upbeat tracks:
+
+```
+beet ls valence:0.6.. energy:0.7..
+```
+
+Or maybe a calm but inspirational study playlist composed of instrumental tracks:
+
+```
+beet ls instrumentalness:0.9.. energy:..0.3 valence:0.8..
+```
+
+To get the most out of beets, you should understand [how its query strings work](https://beets.readthedocs.io/en/stable/reference/query.html).

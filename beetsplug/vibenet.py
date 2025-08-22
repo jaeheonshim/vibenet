@@ -8,6 +8,7 @@ from beets.library import Item, Library
 from beets.plugins import BeetsPlugin
 from beets.ui import Subcommand, should_write
 from beets.util import syspath
+from beets.dbcore import types
 
 from vibenet import labels as FIELDS
 from vibenet import load_model
@@ -15,6 +16,8 @@ from vibenet.core import load_audio
 
 
 class VibeNetPlugin(BeetsPlugin):
+    item_types = {f: types.NullFloat(6) for f in FIELDS}
+    
     def __init__(self):
         super().__init__()
         
