@@ -6,10 +6,6 @@
 
 A while ago I canceled my Spotify subscription and began building my own offline music library. But something I always missed was Spotify's ability to generate smart playlists like *Morning Mix* or *Driving Vibes*. Spotify doesn't publish how its algorithm creates these playlists, so I set out to build my own system.
 
-As humans, music can make us feel happy, sad, energetic, angry, calm, or a variety of other emotions. Can music make computers *feel* these emotions too? Well, maybe not, but we can teach them to recognize and quantify the qualities of music that drive those feelings. Then, we could use our computers to classify and organize our musical tracks by the emotions they make us feel and recommend songs that match a given mood.
-
-VibeNet is a lightweight Python package and CLI that predicts musical emotions and attributes (valence, energy, danceability, acousticness, etc.) directly from raw audio. It utilizes a distilled EfficientNet student model trained with teacher-student distillation on the [Free Music Archive (FMA) dataset](https://github.com/mdeff/fma).
-
 ## Quick Links
 
 There are a few different ways to use VibeNet depending on your intended use case.
@@ -43,6 +39,9 @@ Below is a table describing each attribute in more detail:
 
 ## Usage
 ### Beets Plugin
+This option is best for tagging a large music library, for example if you want to create playlists organized by mood.
+
+[beets](https://beets.io/) is a powerful program for managing your music library. If you have a large collection of mp3/flac files, you're probably already familiar with this tool. If you aren't, I would recommend you first visit https://beets.io and take a moment to learn your way around the tool.
 <details>
 <summary>
 Click to expand
@@ -105,11 +104,11 @@ To get the most out of beets, you should understand [how its query strings work]
 </details>
 
 ### Command Line
+The VibeNet package includes a command line script as well.
 <details>
 <summary>
 Click to expand
 </summary>
-The VibeNet package includes a command line script as well.
 
 #### Installation
 Install the VibeNet package.

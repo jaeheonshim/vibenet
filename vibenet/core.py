@@ -150,6 +150,9 @@ def extract_mel(
     if center:
         pad = (win_length // 2)
         y = np.pad(y, (pad, pad), mode="reflect")
+        
+    if y.shape[0] < win_length:
+        y = np.pad(y, (0, win_length - y.shape[0]))
 
     frames = sliding_window_view(y, win_length)[::hop_length]
     window = _cached_window(win_length, window_type)

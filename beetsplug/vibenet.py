@@ -46,7 +46,7 @@ class VibeNetPlugin(BeetsPlugin):
 
         if not threads or threads == 0:
             threads = multiprocessing.cpu_count()
-            print("Adjusting max threads to CPU count: {0}".format(threads))
+            self._log.debug("Adjusting max threads to CPU count: %d", threads)
 
         net = load_model()
         
@@ -64,7 +64,12 @@ class VibeNetPlugin(BeetsPlugin):
             futs = {ex.submit(worker, it): i for i, it in enumerate(items)}
             for fut in as_completed(futs):
                 idx = futs[fut]
-                it, scores = fut.result()
+                
+                try:
+                    it, scores = fut.result()
+                except Exception as e:
+                    self._log.error("Error processing %s: %s", items[idx].path, e, exc_info=True)
+                    continue
                 
                 if not dry_run:
                     for f in FIELDS:
@@ -76,7 +81,10 @@ class VibeNetPlugin(BeetsPlugin):
                         it.write()
                 
                 finished += 1
-                print(f"Progress: [{finished}/{total}] ({it.artist} - {it.album} - {it.title})", flush=True)
+                self._log.info(
+                    "Progress: [%s/%s] (%s - %s - %s)",
+                    finished, total, it.artist, it.album, it.title,
+                )
     
     def commands(self):
         cmd = Subcommand("vibenet", help="Predict VibeNet attributes and store them on items.")
@@ -121,9 +129,9 @@ class VibeNetPlugin(BeetsPlugin):
         items = lib.items(query)
         
         if opts.dryrun:
-            print("*******************************************")
-            print("*** DRY RUN: NO CHANGES WILL BE APPLIED ***")
-            print("*******************************************")
+            self._log.warning("*******************************************")
+            self._log.warning("*** DRY RUN: NO CHANGES WILL BE APPLIED ***")
+            self._log.warning("*******************************************")
             
         self._process_items(items, threads=opts.threads, dry_run=opts.dryrun, write_tags=opts.write, force=opts.force)
         
