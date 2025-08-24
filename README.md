@@ -196,3 +196,24 @@ path,acousticness,danceability,energy,instrumentalness,liveness,speechiness,vale
 02 Dancing Queen.flac,0.34442428835652833,0.6195424795150757,0.7037929892539978,0.7138845214492101,0.1604615680649649,0.04466772451996803,0.8822445869445801
 ```
 </details>
+
+## How it works
+A more detailed explanation is coming soon! All scripts/notebooks used to train the model are provided in this GitHub repository.
+
+## References
+
+Training was completed on an NVIDIA A100 GPU.
+
+The FMA dataset was used to train the teacher model, with labels provided by Echonest.
+- https://arxiv.org/abs/1612.01840
+- https://github.com/mdeff/fma
+
+The embeddings from PANNs were used to form the backbone for the teacher model.
+- https://arxiv.org/abs/1912.10211
+- https://github.com/qiuqiangkong/audioset_tagging_cnn
+
+VGGish (by Google) was also experimented with as a potential backbone model.
+- https://www.kaggle.com/models/google/vggish
+
+The EfficientNet model was used as the backbone for the student model, with implementation provided by the `torchvision` package.
+- https://arxiv.org/abs/1905.11946
