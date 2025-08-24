@@ -6,6 +6,9 @@
 
 A while ago I canceled my Spotify subscription and began building my own offline music library. But something I always missed was Spotify's ability to generate smart playlists like *Morning Mix* or *Driving Vibes*. Spotify doesn't publish how its algorithm creates these playlists, so I set out to build my own system.
 
+
+VibeNet is a lightweight Python package and CLI that predicts musical emotions and attributes (valence, energy, danceability, acousticness, etc.) directly from raw audio. It utilizes a distilled EfficientNet student model trained with teacher-student distillation on the Free Music Archive (FMA) dataset.
+
 ## Quick Links
 
 There are a few different ways to use VibeNet depending on your intended use case.
@@ -13,7 +16,7 @@ There are a few different ways to use VibeNet depending on your intended use cas
 - [Beets plugin](#beets-plugin) - By far the best option for using VibeNet to tag and classify your personal music collection
 - MusicBrainz Picard - Coming soon!
 - [Python package]() - Best if you want to build on top VibeNet or you need the maximum flexibility
-- [Command line (CLI)](#command-line) - Best for one-off labeling tasks. I wouldn't use the CLI to label and manage your entire library
+- [Command line (CLI)](#command-line) - Best for one-off labeling tasks and general usage.
 
 ## What attributes are predicted?
 
@@ -101,6 +104,50 @@ beet ls instrumentalness:0.9.. energy:..0.3 valence:0.8..
 ```
 
 To get the most out of beets, you should understand [how its query strings work](https://beets.readthedocs.io/en/stable/reference/query.html).
+</details>
+
+### Python package
+You can use VibeNet as a module in your own Python projects.
+
+<details>
+<summary>
+Click to expand
+</summary>
+
+#### Installation
+Install the VibeNet package.
+
+```
+pip install vibenet
+```
+
+#### Usage
+Check the Model class in `vibenet/core.py` for full details. Below are a few examples:
+
+**Inference on a single audio file**
+```py
+from vibenet import load_model
+
+model = load_model()
+print(model.predict("Dancing Queen.flac"))
+```
+```
+[InferenceResult(acousticness=0.34442428835652833, danceability=0.6195424795150757, energy=0.7037929892539978, instrumentalness=0.7138845214492101, liveness=0.1604615680649649, speechiness=0.04466772451996803, valence=0.8822445869445801)]
+```
+
+**Inference on multiple audio files**
+```py
+from vibenet import load_model
+
+model = load_model()
+print(model.predict(["Dancing Queen.flac", "Money, Money, Money.flac"]))
+```
+```
+[InferenceResult(acousticness=0.34442428835652833, danceability=0.6195424795150757, energy=0.7037929892539978, instrumentalness=0.7138845214492101, liveness=0.1604615680649649, speechiness=0.04466772451996803, valence=0.8822445869445801), InferenceResult(acousticness=0.6901674220217361, danceability=0.6556591987609863, energy=0.4812447428703308, instrumentalness=0.7523727231956888, liveness=0.14662341130452025, speechiness=0.06765997409820557, valence=0.9115567207336426)]
+```
+
+The input to the `predict` method can be an array of file paths or raw waveforms (`np.ndarray`). If the inputs are waveforms, the sample rate must be provided as well. The output of the `predict` method is an array of `InferenceResult`, with the index of each output corresponding to the respective index in the input.
+
 </details>
 
 ### Command Line
