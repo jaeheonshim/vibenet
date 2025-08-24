@@ -46,7 +46,7 @@ class VibeNetPlugin(BeetsPlugin):
 
         if not threads or threads == 0:
             threads = multiprocessing.cpu_count()
-            self._log.debug("Adjusting max threads to CPU count: %d", threads)
+            self._log.debug("Adjusting max threads to CPU count: {}", threads)
 
         net = load_model()
         
@@ -68,7 +68,7 @@ class VibeNetPlugin(BeetsPlugin):
                 try:
                     it, scores = fut.result()
                 except Exception as e:
-                    self._log.error("Error processing %s: %s", items[idx].path, e, exc_info=True)
+                    self._log.error("Error processing {}: {}", items[idx].path, e, exc_info=True)
                     continue
                 
                 if not dry_run:
@@ -82,8 +82,8 @@ class VibeNetPlugin(BeetsPlugin):
                 
                 finished += 1
                 self._log.info(
-                    "Progress: [%s/%s] (%s - %s - %s)",
-                    finished, total, it.artist, it.album, it.title,
+                    "Progress: [{}/{}] ({} - {} - {})",
+                    str(finished), str(total), it.artist, it.album, it.title,
                 )
     
     def commands(self):
