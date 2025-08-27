@@ -88,8 +88,13 @@ def load_audio(path, target_sr=16000):
     try:
         y, sr = sf.read(path, always_2d=False)
     except Exception:
-        y, sr = librosa.load(path, sr=target_sr, mono=False)
+        y, sr = librosa.load(path, sr=None, mono=False)
+
     y = np.asarray(y, dtype=np.float32)
+
+    # If multi-channel, make sure it's shaped (samples, channels) before averaging
+    if y.ndim == 2 and y.shape[0] < y.shape[1]:
+        y = y.T
     if y.ndim == 2:
         y = y.mean(axis=1)
     if sr != target_sr:
